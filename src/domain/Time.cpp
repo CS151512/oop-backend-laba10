@@ -6,20 +6,16 @@
 
 using namespace std;
 
+const int SECONDS_IN_DAY = 86400;
+
 void Time::normalize() {
-    if (seconds < 0) {
-        int minsToSub = (-seconds + 59) / 60;
-        minutes -= minsToSub;
-        seconds += minsToSub * 60;
-    }
-    if (minutes < 0) {
-        int minsToSub = -minutes;
-        minutes = 0;
-        seconds -= minsToSub * 60;
-    }
-    hours = (hours % 24 + 24) % 24;
-    minutes %= 60;
-    seconds %= 60;
+    int total_s = hours * 3600 + minutes * 60 + seconds;
+
+    total_s = (total_s % SECONDS_IN_DAY + SECONDS_IN_DAY) % SECONDS_IN_DAY;
+
+    hours = total_s / 3600;
+    minutes = (total_s % 3600) / 60;
+    seconds = total_s % 60;
 }
 
 Time::Time() : hours(0), minutes(0), seconds(0) {}
@@ -32,6 +28,16 @@ Time::Time(int h, int m, int s): hours(h), minutes(m), seconds(s) {
 }
 
 Time::Time(int totalSeconds) : hours(0), minutes(0), seconds(totalSeconds) {
+    normalize();
+}
+
+Time::Time(const string& timeStr) {
+    char delimiter1, delimiter2;
+    stringstream ss(timeStr);
+    if (!(ss >> hours >> delimiter1 >> minutes >> delimiter2 >> seconds) ||
+        delimiter1 != ':' || delimiter2 != ':') {
+        throw invalid_argument("Invalid format. Expected hh:mm:ss.");
+        }
     normalize();
 }
 
