@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.20)
+project(TimeServiceApp)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+
+add_executable(time_app ${SOURCES})
+include_directories(include)
+include_directories(include /opt/homebrew/include /usr/local/include /usr/include)
+target_link_libraries(time_app pqxx pq pthread)

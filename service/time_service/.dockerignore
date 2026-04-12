@@ -1,0 +1,30 @@
+build/
+out/
+bin/
+*.o
+*.a
+*.so
+*.dylib
+*.exe
+
+# Системные файлы macOS и Windows
+.DS_Store
+Thumbs.db
+
+# Конфигурации IDE и редакторов
+.idea/
+.vscode/
+*.swp
+*.suo
+*.sln
+CMakeLists.txt.user
+cmake-build-*/
+
+# Локальные логи и данные баз (они пробрасываются через volumes)
+logs/
+*.log
+pg_data/
+
+# Система контроля версий
+.git/
+.gitignore
