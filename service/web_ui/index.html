@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Microservices Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+                    },
+                    colors: {
+                        zinc: {
+                            850: '#1f1f22',
+                            900: '#18181b',
+                            950: '#09090b',
+                        },
+                        accent: '#6366f1',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-zinc-950 text-zinc-300 font-sans antialiased min-h-screen selection:bg-accent selection:text-white">
+<div id="app" class="max-w-7xl mx-auto p-6 md:p-10" v-cloak>
+
+    <header class="mb-12 border-b border-zinc-800 pb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-extrabold text-zinc-100 tracking-tight">
+                <i class="fa-solid fa-layer-group text-accent mr-3"></i>System Dashboard
+            </h1>
+            <p class="text-zinc-500 text-sm mt-1 font-mono">cluster://cpp-microservices/prod</p>
+        </div>
+        <div class="hidden md:flex space-x-2">
+            <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-xs font-mono">postgres: active</span>
+            <span class="px-2 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded text-xs font-mono">nginx: routing</span>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+            <div class="bg-zinc-850 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-zinc-100 uppercase tracking-widest"><i class="fa-regular fa-clock mr-2 text-zinc-400"></i>Time.svc</h2>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <div class="p-6 space-y-8 flex-grow">
+
+                <div class="space-y-3">
+                    <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wider block">Write Operation</label>
+                    <div class="flex space-x-3">
+                        <input v-model="timeForm.time_str" @keyup.enter="createTime" type="text" placeholder="HH:MM:SS" class="w-full bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-700 px-4 py-2.5 rounded-lg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent font-mono text-sm transition-all">
+                        <button @click="createTime" :disabled="loading" class="bg-zinc-100 hover:bg-white text-zinc-900 font-semibold px-6 py-2.5 rounded-lg transition-colors flex justify-center items-center shrink-0">
+                            <span v-if="!loading">Execute</span>
+                            <i v-else class="fa-solid fa-circle-notch fa-spin text-zinc-900"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="text-xs font-semibold text-zinc-500 uppercase tracking-wider block">Read Operation (By ID)</label>
+                    <div class="flex space-x-3">
+                        <div class="relative w-full">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-zinc-600 font-mono">id=</span>
+                            <input v-model="searchTimeId" @keyup.enter="getTime" type="number" placeholder="0" class="w-full bg-zinc-950 border border-zinc-800 text-zinc-100 placeholder-zinc-700 pl-10 pr-4 py-2.5 rounded-lg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent font-mono text-sm transition-all">
+                        </div>
+                        <button @click="getTime" class="bg-zinc-800 hover:bg-zinc-700 text-zinc-100 px-6 py-2.5 rounded-lg border border-zinc-700 transition-colors shrink-0">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <div v-if="timeResult" :class="timeResult.error ? 'text-red-400 border-red-900/50 bg-red-950/20' : 'text-emerald-400 border-emerald-900/50 bg-emerald-950/20'" class="p-4 rounded-lg border font-mono text-sm break-all">
+                        <span class="text-zinc-500 mr-2">></span>{{ timeResult }}
+                    </div>
+                    <div v-else class="p-4 rounded-lg border border-zinc-800/50 bg-zinc-950/50 font-mono text-sm text-zinc-600 flex items-center">
+                        <i class="fa-solid fa-terminal mr-2"></i> Awaiting input...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col">
+            <div class="bg-zinc-850 border-b border-zinc-800 px-6 py-4 flex items-center justify-between">
+                <h2 class="text-sm font-bold text-zinc-100 uppercase tracking-widest"><i class="fa-solid fa-microchip mr-2 text-zinc-400"></i>Math.svc</h2>
+                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <div class="p-6 space-y-6 flex-grow flex flex-col">
+
+                <div class="flex space-x-1 bg-zinc-950 p-1 rounded-lg border border-zinc-800">
+                    <button v-for="tab in ['Кольцо', 'Треугольник', 'Дроби', 'Комплексные']" :key="tab"
+                            @click="activeTab = tab"
+                            :class="activeTab === tab ? 'bg-zinc-800 text-zinc-100 shadow-sm' : 'text-zinc-500 hover:text-zinc-300'"
+                            class="flex-1 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-md transition-all">
+                        {{ tab }}
+                    </button>
+                </div>
+
+                <div class="flex-grow flex flex-col justify-center">
+                    <div v-show="activeTab === 'Кольцо'" class="space-y-4 animate-fade-in">
+                        <div class="flex space-x-4">
+                            <input v-model="mathForms.ring.outer" @keyup.enter="calcMath('ring')" type="number" placeholder="R Внешний" class="w-1/2 bg-zinc-950 border border-zinc-800 text-zinc-100 px-4 py-2.5 rounded-lg focus:outline-none focus:border-accent font-mono text-sm text-center">
+                            <input v-model="mathForms.ring.inner" @keyup.enter="calcMath('ring')" type="number" placeholder="R Внутренний" class="w-1/2 bg-zinc-950 border border-zinc-800 text-zinc-100 px-4 py-2.5 rounded-lg focus:outline-none focus:border-accent font-mono text-sm text-center">
+                        </div>
+                        <button @click="calcMath('ring')" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-semibold py-2.5 rounded-lg transition-colors">Compute Area</button>
+                    </div>
+
+                    <div v-show="activeTab === 'Треугольник'" class="space-y-4 animate-fade-in">
+                        <div class="flex space-x-3">
+                            <input v-model="mathForms.triangle.a" type="number" placeholder="Side A" class="w-1/3 bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2.5 rounded-lg focus:outline-none focus:border-accent font-mono text-sm text-center">
+                            <input v-model="mathForms.triangle.b" type="number" placeholder="Side B" class="w-1/3 bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2.5 rounded-lg focus:outline-none focus:border-accent font-mono text-sm text-center">
+                            <input v-model="mathForms.triangle.c" type="number" placeholder="Side C" class="w-1/3 bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2.5 rounded-lg focus:outline-none focus:border-accent font-mono text-sm text-center">
+                        </div>
+                        <button @click="calcMath('triangle')" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-semibold py-2.5 rounded-lg transition-colors">Compute Area</button>
+                    </div>
+
+                    <div v-show="activeTab === 'Дроби'" class="space-y-4 animate-fade-in">
+                        <div class="flex items-center justify-between px-4">
+                            <div class="flex flex-col space-y-2 w-32">
+                                <input v-model="mathForms.rational.num1" type="number" placeholder="Num 1" class="bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2 rounded text-center font-mono focus:outline-none focus:border-accent">
+                                <hr class="border-zinc-700">
+                                <input v-model="mathForms.rational.den1" type="number" placeholder="Den 1" class="bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2 rounded text-center font-mono focus:outline-none focus:border-accent">
+                            </div>
+                            <span class="text-xl font-mono text-zinc-600">+</span>
+                            <div class="flex flex-col space-y-2 w-32">
+                                <input v-model="mathForms.rational.num2" type="number" placeholder="Num 2" class="bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2 rounded text-center font-mono focus:outline-none focus:border-accent">
+                                <hr class="border-zinc-700">
+                                <input v-model="mathForms.rational.den2" type="number" placeholder="Den 2" class="bg-zinc-950 border border-zinc-800 text-zinc-100 px-3 py-2 rounded text-center font-mono focus:outline-none focus:border-accent">
+                            </div>
+                        </div>
+                        <button @click="calcMath('rational')" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-semibold py-2.5 rounded-lg transition-colors mt-4">Compute Sum</button>
+                    </div>
+
+                    <div v-show="activeTab === 'Комплексные'" class="space-y-4 animate-fade-in">
+                        <div class="flex items-center justify-between space-x-4">
+                            <div class="flex bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden w-1/2">
+                                <input v-model="mathForms.complex.re1" type="number" placeholder="Re" class="w-1/2 bg-transparent text-zinc-100 px-3 py-2.5 focus:outline-none border-r border-zinc-800 font-mono text-center">
+                                <input v-model="mathForms.complex.im1" type="number" placeholder="Im" class="w-1/2 bg-transparent text-zinc-100 px-3 py-2.5 focus:outline-none font-mono text-center">
+                            </div>
+                            <span class="text-xl font-mono text-zinc-600">+</span>
+                            <div class="flex bg-zinc-950 border border-zinc-800 rounded-lg overflow-hidden w-1/2">
+                                <input v-model="mathForms.complex.re2" type="number" placeholder="Re" class="w-1/2 bg-transparent text-zinc-100 px-3 py-2.5 focus:outline-none border-r border-zinc-800 font-mono text-center">
+                                <input v-model="mathForms.complex.im2" type="number" placeholder="Im" class="w-1/2 bg-transparent text-zinc-100 px-3 py-2.5 focus:outline-none font-mono text-center">
+                            </div>
+                        </div>
+                        <button @click="calcMath('complex')" class="w-full bg-zinc-100 hover:bg-white text-zinc-900 font-semibold py-2.5 rounded-lg transition-colors">Compute Sum</button>
+                    </div>
+                </div>
+
+                <div class="mt-auto pt-4">
+                    <div v-if="mathResult" :class="mathResult.error ? 'text-red-400 border-red-900/50 bg-red-950/20' : 'text-accent border-indigo-900/50 bg-indigo-950/20'" class="p-4 rounded-lg border font-mono text-sm break-all">
+                        <span class="text-zinc-500 mr-2">></span>{{ mathResult }}
+                    </div>
+                    <div v-else class="p-4 rounded-lg border border-zinc-800/50 bg-zinc-950/50 font-mono text-sm text-zinc-600 flex items-center">
+                        <i class="fa-solid fa-terminal mr-2"></i> Math output stream...
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    [v-cloak] { display: none; }
+    .animate-fade-in { animation: fadeIn 0.2s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type="number"] {
+        -moz-appearance: textfield;
+    }
+</style>
+<script type="module" src="app.js"></script>
+</body>
+</html>
