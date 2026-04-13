@@ -110,6 +110,29 @@ erDiagram
 > ![img_router_4](./img/img_3.png)
 > 
 
+## Теперь как не надо
+
+>[!CAUTION]
+> 400 (Bad Request) <- **какое-то из полей пустое**
+> ![img_err_1](./img/img_5.png)
+> 
+> ![img_err_4](./img/img_8.png)
+> 
+> ![img_err_4](./img/img_11.png)
+> 
+> 400 (Bad Request) <- **неправильный формат ввода**
+> ![img_err_2](./img/img_6.png)
+> 
+> 400 (Bad Request) <- **деление на ноль**
+> ![img_err_3](./img/img_7.png)
+> 
+> 500 (Internal Server Error) <- **мне было лень обрабатывать это**
+> ![img_err_4](./img/img_9.png)
+> 
+> 400 (Bad Request) <- **радиус не может быть отрицательным**
+> ![img_err_4](./img/img_10.png)
+>
+
 ## Запуск
 >[!IMPORTANT]
 >  **Запуск через докер**
@@ -119,6 +142,9 @@ erDiagram
 > ```
 > 
 > **Вот так можно посмотреть БДшку**
+> ```shell
+> пока лень писать сорр
+> ```
 
 ![footer](./img/footer_github.png)
 
