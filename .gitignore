@@ -3,3 +3,8 @@
 *.bin
 *.exe
 .env
+
+**/cmake-build-debug/
+
+service/time_service/include/
+service/math_service/include/
