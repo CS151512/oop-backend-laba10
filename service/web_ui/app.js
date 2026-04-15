@@ -13,7 +13,13 @@ createApp({
             ring: { outer: '', inner: '' },
             triangle: { a: '', b: '', c: '' },
             rational: { num1: '', den1: '', num2: '', den2: '' },
-            complex: { re1: '', im1: '', re2: '', im2: '' }
+            complex: {
+                re1: '',
+                im1: '',
+                re2: '',
+                im2: '',
+                op: 'add'
+            }
         })
         const mathResult = ref(null)
 
@@ -65,7 +71,7 @@ createApp({
                     url = `/api/math/rational/add?num1=${f.num1}&den1=${f.den1}&num2=${f.num2}&den2=${f.den2}`
                     break
                 case 'complex':
-                    url = `/api/math/complex/add?re1=${f.re1}&im1=${f.im1}&re2=${f.re2}&im2=${f.im2}`
+                    url = `/api/math/complex/calc?re1=${f.re1}&im1=${f.im1}&re2=${f.re2}&im2=${f.im2}&op=${f.op}`
                     break
             }
 
