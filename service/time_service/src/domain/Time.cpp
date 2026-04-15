@@ -37,9 +37,10 @@ Time::Time(const string& timeStr) {
 
     int parsed = sscanf(timeStr.c_str(), "%d:%d:%d", &h, &m, &s);
 
-    if (parsed == 2) {
+    if (parsed == 3) {
+    } else if (parsed == 2) {
         s = 0;
-    }else {
+    } else {
         throw invalid_argument("Invalid format. Expected hh:mm or hh:mm:ss.");
     }
 
