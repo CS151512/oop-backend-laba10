@@ -60,6 +60,9 @@ erDiagram
 ## Какие бывают запросы
 
 > [!TIP]
+> 
+> ## Работа с числами (math_service)
+> 
 > ### Площадь кольца `GET`
 > 
 > 200 OK <- сервер принял данные и произвел расчет
@@ -167,6 +170,22 @@ erDiagram
 > ```shell
 > curl "http://localhost:8080/api/math/complex/polar?re=3.0&im=4.0"
 > ```
+> 
+> ## Работа со временем (time_service)
+> 
+> ### Получение записи по ID `GET`
+> 
+> ```shell
+> curl -X GET "http://localhost:8080/api/time/1"
+> ```
+> 
+> ### Создать запись времени `POST`
+> 
+> ```shell
+> curl -X POST -d "time_str=14:30:00" "http://localhost:8080/api/time"
+> ```
+>
+
 
 ## Теперь как не надо
 
