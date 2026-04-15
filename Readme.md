@@ -60,9 +60,11 @@ erDiagram
 ## Какие бывают запросы
 
 > [!TIP]
+> ### Площадь кольца `GET`
+> 
 > 200 OK <- сервер принял данные и произвел расчет
 > ```shell
-> curl 
+> curl "http://localhost:8080/api/math/ring?outer=10&inner=5"
 > ```
 > ответ:
 > ```json
@@ -71,35 +73,80 @@ erDiagram
 > }
 > ```
 > ![img_router_1](./img/img.png)
+>
+> ### Калькулятор комплексных чисел `GET`
 > 
 > 200 OK <- сервер принял данные и произвел расчет
+> 
+> **Сложение(add)**
+> 
 > ```shell
-> curl 
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
 > ```
-> ответ:
-> ```json
-> {
-> "result" : "6+8i"
-> }
+> 
+> **Вычитание(sub)**
+>
+> ```shell
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
 > ```
+> 
+> **Умножение(mul)**
+>
+> ```shell
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
+> ```
+> 
+> **Деление(div)**
+>
+> ```shell
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
+> ```
+> 
+> **Сравнение на равенство(eq)**
+>
+> ```shell
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
+> ```
+> 
+> **Сравнение на неравенство(neq)**
+>
+> ```shell
+> curl "http://localhost:8080/api/math/complex/calc?re1=2.5&im1=1.0&re2=3.0&im2=2.0&op=add"
+> ```
+> 
 > ![img_router_2](./img/img_1.png)
+>
+> ### Калькулятор рациональных чисел `GET`
 > 
 > 200 OK <- сервер принял две дроби и произвел расчеты
+> 
+> **Сложение(add)**
 > ```shell
-> curl 
+> curl "http://localhost:8080/api/math/rational/calc?num1=1&den1=2&num2=1&den2=3&op=add"
 > ```
-> ответ:
-> ```json
-> {
-> "result" : "1"
-> }
+>
+> **Сложение(add)**
+> ```shell
+> curl "http://localhost:8080/api/math/rational/calc?num1=1&den1=2&num2=1&den2=3&op=add"
+> ```
+>
+> **Вычитание(sub)**
+> ```shell
+> curl "http://localhost:8080/api/math/rational/calc?num1=1&den1=2&num2=1&den2=3&op=sub"
+> ```
+>
+> **Деление(div)**
+> ```shell
+> curl "http://localhost:8080/api/math/rational/calc?num1=1&den1=2&num2=1&den2=3&op=div"
 > ```
 > 
 > ![img_router_3](./img/img_2.png)
+>
+> ### Площадь треугольника `GET`
 > 
 > 200 OK <- сервер принял данные и произвел расчет площади
 > ```shell
-> curl 
+> curl "http://localhost:8080/api/math/triangle/area?a=3.0&b=4.0&c=5.0"
 > ```
 > ответ:
 > ```json
@@ -108,7 +155,18 @@ erDiagram
 > }
 > ```
 > ![img_router_4](./img/img_3.png)
+>
+> ### История мат операций `GET`
 > 
+> ```shell
+> curl "http://localhost:8080/api/math/history"
+> ```
+> 
+> ### Полярные координаты комплексного числа `GET`
+> 
+> ```shell
+> curl "http://localhost:8080/api/math/complex/polar?re=3.0&im=4.0"
+> ```
 
 ## Теперь как не надо
 
@@ -133,6 +191,27 @@ erDiagram
 > ![img_err_4](./img/img_10.png)
 >
 
+## Настйрока окружения
+
+>[!IMPORTANT]
+> В корне проекта у нас есть **.env.example**
+> 
+> ```env
+> #Settings database(Postgres)
+> DB_HOST=postgres
+> DB_PORT=5432
+> DB_USER=default_user
+> DB_PASSWORD=default_password
+> DB_NAME=default_db
+>
+> #Service settings
+> TIME_SERVICE_PORT=8081
+> MATH_SERVICE_PORT=8082
+> WEB_UI_PORT=8080
+> ```
+> 
+> просто замените заглушки на реальные значения и переведите в формат **.env**
+
 ## Запуск
 >[!IMPORTANT]
 >  **Запуск через докер**
@@ -143,8 +222,41 @@ erDiagram
 > 
 > **Вот так можно посмотреть БДшку**
 > ```shell
-> пока лень писать сорр
+> export PGPASSWORD="your pass in .env for pass_pg"                                                 
+> psql -h localhost -p 5432 -U admin -d postgres
 > ```
+> 
+> потом
+> 
+> ```shell
+> \c laba_db
+> ```
+> 
+> для проверки там ли вы, можно сделать так
+> 
+> ```shell
+> \dt
+> ```
+> 
+> вы увидите
+> 
+> ![pg_db](./img/img_14.png)
+> 
+> Получаем все данные из time_service
+> 
+> ```sql
+> SELECT * FROM time_service;
+> ```
+> 
+> ![img_time_service_pg_db](./img/img_13.png)
+> 
+> Получаем все данные из math_service
+> 
+> ```sql
+> SELECT * FROM math_service;
+> ```
+> 
+> ![img_math_service_pg_db](./img/img_12.png)
 
 ![footer](./img/footer_github.png)
 
